@@ -3,9 +3,9 @@ import { classNames } from "../util/lang"
 
 const PageTitle: RssgComponent = ({ cfg, displayClass }: RssgComponentProps) => {
   return (<div class={classNames(displayClass, "page-title")}>
-    <h3><a href={cfg.hostUrl}>{cfg.hostTitle}{cfg.hostTitle.endsWith("s") ? "'" : "'s"}</a></h3>
-    <h1><a href="/">{cfg.docTitle}:</a></h1>
-    <h2><a href="/">{cfg.docTitleSuffix}</a></h2>
+    {cfg.host && <h3><a href={cfg.host.url}>{cfg.host.title}{cfg.host.title.endsWith("s") ? "'" : "'s"}</a></h3>}
+    <h1><a href="/">{cfg.document.title}:</a></h1>
+    <h2><a href="/">{cfg.document.titleSuffix}</a></h2>
   </div>)
 }
 

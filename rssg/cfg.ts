@@ -43,12 +43,21 @@ export type Analytics =
       projectId?: string
     }
 
+export interface HostConfiguration {
+  title: string
+  url: string
+  image?: string
+}
+
+export interface DocumentConfiguration {
+  title: string
+  titleSuffix: string
+  image?: string
+}
+
 export interface GlobalConfiguration {
-  docTitle: string
-  docTitleSuffix: string
-  
-  hostTitle: string
-  hostUrl: string
+  document: DocumentConfiguration
+  host?: HostConfiguration
 
   pageTitle: string
   pageTitleSuffix: string

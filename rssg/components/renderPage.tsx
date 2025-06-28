@@ -234,13 +234,37 @@ export function renderPage(
 
   let doc;
   if (slug == "index") {
+    let host
+    if (typeof(cfg.host) == "object" && cfg.host != null) {
+      let hostImage
+      if (typeof(cfg.host.image) == "string" && cfg.host.image.length > 0) {
+        hostImage = <img style={{height: "1em", margin: 0, imageRendering: "pixelated"}} src={cfg.host.image}/>
+      }
+
+      host = (
+        <h2 style={{marginBottom: 0, textAlign: "right"}}>
+          {hostImage}
+          <a href={cfg.host.url}>{cfg.host.title}{cfg.host.title.endsWith("s") ? "'" : "'s"}</a>
+        </h2>
+      )
+    }
+
+    let title = <div>{host} <h1 style={{margin: 0, textAlign: "right"}}>{cfg.pageTitle}</h1></div>
+    if (typeof(cfg.document.image) == "string" && cfg.document.image.length > 0) {
+      title = (
+        <div style={{display: "flex", alignItems: "flex-end", justifyContent: "space-between"}}>
+          <img style={{height: "4em", marginTop: 0, marginRight: ".4em", marginLeft: 0, marginBottom: 0, imageRendering: "pixelated"}} src={cfg.document.image} />
+          {title}
+        </div>
+      )
+    }
+
     doc = (
       <html lang={lang}>
         <Head {...componentData} />
         <body data-slug={slug}>
           <div style={{ maxWidth: "50em", marginLeft: "auto", marginRight: "auto" }}>
-            <h2 style={{marginBottom:0, textAlign:"right"}}><a href={cfg.hostUrl}>{cfg.hostTitle}{cfg.hostTitle.endsWith("s") ? "'" : "'s"}</a></h2>
-            <h1 style={{marginTop:0, textAlign:"right"}}>{cfg.pageTitle}</h1>
+            {title}
             <hr />
             <Content {...componentData} />
             <hr />

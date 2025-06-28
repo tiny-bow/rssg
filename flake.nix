@@ -17,12 +17,12 @@
 
         npmDepsHash = "sha256-qWNuSzGtSx3QUYexyQ+saBGHSH4+h0Qkuvtrd9QySMs=";
 
-        nodejs = pkgs.nodejs_24;
+        nodejs = pkgs.nodejs_22;
 
         nativeBuildInputs = [ pkgs.makeWrapper ];
 
         postInstall = ''
-          makeWrapper ${pkgs.nodejs_24}/bin/node $out/bin/rssg \
+          makeWrapper ${pkgs.nodejs_22}/bin/node $out/bin/rssg \
             --set NODE_PATH "$out/lib/node_modules" \
             --add-flags "$out/lib/node_modules/rssg/rssg/.rssg-cache/cli.js"
         '';
@@ -36,6 +36,8 @@
       };
     in
     {
+      version = "1.0.0";
+
       packages.${system}.default = rssg;
 
       apps.${system} = {
@@ -49,7 +51,7 @@
 
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = [
-          pkgs.nodejs_24
+          pkgs.nodejs_22
           rssg
         ];
       };

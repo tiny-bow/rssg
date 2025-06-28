@@ -2,13 +2,12 @@ import sourceMapSupport from "source-map-support"
 sourceMapSupport.install(options)
 import path from "path"
 import { PerfTimer } from "./util/perf"
-import { rm } from "fs/promises"
+import { readFile, rm } from "fs/promises"
 import { GlobbyFilterFunction, isGitIgnored } from "globby"
 import { styleText } from "util"
 import { parseMarkdown } from "./processors/parse"
 import { filterContent } from "./processors/filter"
 import { emitContent } from "./processors/emit"
-import cfg from "rssg-config"
 import { FilePath, joinSegments, slugifyFilePath } from "./util/path"
 import chokidar from "chokidar"
 import { ProcessedContent } from "./plugins/vfile"
@@ -23,6 +22,12 @@ import { ChangeEvent } from "./plugins/types"
 import { minimatch } from "minimatch"
 import yargs from "yargs"
 import { hideBin } from "yargs/helpers"
+import { DocumentConfiguration, HostConfiguration, RssgConfig } from "./cfg"
+
+import PluginSet from "./plugin"
+import DefaultScheme from "./scheme"
+import { ColorScheme, TypographySpecification } from "util/theme"
+
 
 type ContentMap = Map<
   FilePath,
@@ -44,7 +49,7 @@ type BuildData = {
   lastBuildMs: number
 }
 
-async function buildRssg(argv: Argv, mut: Mutex, clientRefresh: () => void) {
+async function buildRssg(cfg: RssgConfig, argv: Argv, mut: Mutex, clientRefresh: () => void) {
   const ctx: BuildCtx = {
     buildId: randomIdNonSecure(),
     argv,
@@ -134,7 +139,7 @@ async function startWatching(
       const pathStr = toPosixPath(fp.toString())
       if (pathStr.startsWith(".git/")) return true
       if (gitIgnoredMatcher(pathStr)) return true
-      for (const pattern of cfg.configuration.ignorePatterns) {
+      for (const pattern of ctx.cfg.configuration.ignorePatterns) {
         if (minimatch(pathStr, pattern)) {
           return true
         }
@@ -356,6 +361,149 @@ export const BuildArgv = {
 }
 
 async function cliWrapper() {
+  let mincfg: any = {}
+  try {
+    const configPath = path.join(process.cwd(), ".rssg", "config.json")
+    console.log(`Using configuration from ${configPath}`)
+    const configContent = await readFile(configPath, "utf-8")
+    mincfg = JSON.parse(configContent)
+  } catch (err) {
+    console.error("Failed to read .rssg/config.json:", err)
+    process.exit(1)
+  }
+
+  const is = (obj: any, name: string): boolean => 
+    typeof obj === name && obj !== null
+
+  if(!is(mincfg, "object")) {
+    throw new Error("Invalid .rssg/config.json: expected an object")
+  }
+
+  let host: HostConfiguration | undefined
+  
+  if (is(mincfg.host, "object")) {
+    if (!is(mincfg.host.title, "string") || !is(mincfg.host.url, "string")) {
+      throw new Error("Invalid host configuration in .rssg/config.json: expected { title: string, url: string, image?: string }")
+    }
+
+    host = {
+      title: mincfg.host.title,
+      url: mincfg.host.url,
+      image: is(mincfg.host.image, "string") ? mincfg.host.image : undefined,
+    }
+  }
+
+  let scheme: ColorScheme = DefaultScheme
+
+  if (is(mincfg.scheme, "object")) {
+    if (!is(mincfg.scheme.foreground, "string") || !is(mincfg.scheme.background, "string") ||
+        !is(mincfg.scheme.overlay, "string") || !is(mincfg.scheme.dark_overlay, "string")) {
+      throw new Error("Invalid scheme configuration in .rssg/config.json: expected { foreground: string, background: string, overlay: string, dark_overlay: string }")
+    }
+
+    scheme = {
+      light: mincfg.scheme.background,
+      lightgray: mincfg.scheme.overlay,
+      gray: mincfg.scheme.foreground,
+      darkgray: mincfg.scheme.foreground,
+      dark: mincfg.scheme.foreground,
+      secondary: mincfg.scheme.foreground,
+      tertiary: mincfg.scheme.foreground,
+      highlight: mincfg.scheme.overlay,
+      textHighlight: mincfg.scheme.dark_overlay,
+    }
+  }
+
+  let typography: TypographySpecification = {
+    title: "Roboto",
+    header: "Roboto",
+    body: "Roboto",
+    code: "Roboto Mono",
+  }
+
+  if (is(mincfg.typography, "object")) {
+    if (!is(mincfg.typography.title, "string") || !is(mincfg.typography.header, "string") ||
+        !is(mincfg.typography.body, "string") || !is(mincfg.typography.code, "string")) {
+      throw new Error("Invalid typography configuration in .rssg/config.json: expected { title: string, header: string, body: string, code: string }")
+    }
+
+    typography = {
+      title: mincfg.typography.title,
+      header: mincfg.typography.header,
+      body: mincfg.typography.body,
+      code: mincfg.typography.code,
+    }
+  }
+
+  let document: DocumentConfiguration = {
+      title: "",
+      titleSuffix: "",
+  }
+
+  if (is(mincfg.document, "object")) {
+    if (!is(mincfg.document.title, "string") || !is(mincfg.document.titleSuffix, "string")) {
+      throw new Error("Invalid document configuration in .rssg/config.json: expected { title: string, titleSuffix: string, image?: string }")
+    }
+
+    document = {
+      title: mincfg.document.title,
+      titleSuffix: mincfg.document.titleSuffix,
+      image: is(mincfg.document.image, "string") ? mincfg.document.image : undefined,
+    }
+  } else {
+    throw new Error("Invalid document configuration in .rssg/config.json: expected { title: string, titleSuffix: string, image?: string }")
+  }
+
+  let pageTitle: string
+  if (is(mincfg.pageTitle, "string")) {
+    pageTitle = mincfg.pageTitle
+  } else {
+    throw new Error("Invalid pageTitle in .rssg/config.json: expected a string")
+  }
+
+  let pageTitleSuffix: string
+  if (is(mincfg.pageTitleSuffix, "string")) {
+    pageTitleSuffix = mincfg.pageTitleSuffix
+  } else {
+    throw new Error("Invalid pageTitleSuffix in .rssg/config.json: expected a string")
+  }
+
+  let baseUrl: string
+  if (is(mincfg.baseUrl, "string")) {
+    baseUrl = mincfg.baseUrl
+  } else {
+    throw new Error("Invalid baseUrl in .rssg/config.json: expected a string")
+  }
+
+  const cfg: RssgConfig = {
+    configuration: {
+      host,
+      document,
+      pageTitle,
+      pageTitleSuffix,
+      baseUrl,
+
+      enableSPA: true,
+      enablePopovers: true,
+      analytics: {
+        provider: "plausible",
+      },
+      locale: "en-US",
+      ignorePatterns: ["private", "templates", ".obsidian"],
+      defaultDateType: "modified",
+      theme: {
+        fontOrigin: "googleFonts",
+        cdnCaching: true,
+        typography,
+        colors: {
+          lightMode: scheme,
+          darkMode: scheme,
+        },
+      },
+    },
+    plugins: PluginSet
+  };
+
   const rawArgv = await yargs(hideBin(process.argv))
     .scriptName("rssg-build")
     .usage("$0 [args]")
@@ -387,7 +535,7 @@ async function cliWrapper() {
   try {
     console.log(`Starting Rssg build with options:`, argv)
 
-    await buildRssg(argv, mut, clientRefresh)
+    await buildRssg(cfg, argv, mut, clientRefresh)
 
     console.log(`Rssg build completed successfully.`)
   } catch (err) {
@@ -396,4 +544,4 @@ async function cliWrapper() {
   }
 }
 
-cliWrapper()
+await cliWrapper()

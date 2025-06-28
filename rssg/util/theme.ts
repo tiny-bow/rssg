@@ -23,13 +23,15 @@ export type FontSpecification =
       includeItalic?: boolean
     }
 
+export interface TypographySpecification {
+  title?: FontSpecification
+  header: FontSpecification
+  body: FontSpecification
+  code: FontSpecification
+}
+
 export interface Theme {
-  typography: {
-    title?: FontSpecification
-    header: FontSpecification
-    body: FontSpecification
-    code: FontSpecification
-  }
+  typography: TypographySpecification
   cdnCaching: boolean
   colors: Colors
   fontOrigin: "googleFonts" | "local"

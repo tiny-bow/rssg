@@ -13,8 +13,20 @@ export default (() => {
     ctx,
   }: RssgComponentProps) => {
     const titleSuffix = cfg.pageTitleSuffix ?? ""
-    const title =
-      (fileData.frontmatter?.title ?? i18n(cfg.locale).propertyDefaults.title) + " - " + titleSuffix
+    let title = fileData.frontmatter?.title
+
+    if (!(title && title != "index")) {
+      if (title == "index") {
+        title = cfg.pageTitle
+      } else {
+        title = fileData.slug!;
+        if (title.endsWith("/index")) title = title.slice(0, -6);
+        title = (title.split("/").pop() || title) + " - " + titleSuffix;
+      }
+    } else {
+      title += " - " + titleSuffix
+    }
+
     const description =
       fileData.frontmatter?.socialDescription ??
       fileData.frontmatter?.description ??
@@ -35,6 +47,8 @@ export default (() => {
       (e) => e.name === CustomOgImagesEmitterName,
     )
     const ogImageDefaultPath = `https://${cfg.baseUrl}/static/og-image.png`
+
+    
 
     return (
       <head>
