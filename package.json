@@ -1,38 +1,24 @@
 {
-  "name": "@jackyzha0/quartz",
-  "description": "🌱 publish your digital garden and notes as a website",
-  "private": true,
-  "version": "4.5.1",
+  "name": "rssg",
+  "description": "the quartz4 static site generator adapted for ribbon ecosystem",
+  "version": "1.0.0",
   "type": "module",
-  "author": "jackyzha0 <j.zhao2k19@gmail.com>",
   "license": "MIT",
-  "homepage": "https://quartz.jzhao.xyz",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jackyzha0/quartz.git"
+    "url": "https://github.com/tiny-bow/rssg.git"
   },
   "scripts": {
-    "quartz": "./quartz/bootstrap-cli.mjs",
-    "docs": "npx quartz build --serve -d docs",
-    "check": "tsc --noEmit && npx prettier . --check",
-    "format": "npx prettier . --write",
-    "test": "tsx --test",
-    "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1"
+    "build": "node rssg/build.js",
+    "runner": "node rssg/.rssg-cache/cli.js",
+    "postinstall": "npm run build"
   },
   "engines": {
     "npm": ">=10.9.2",
     "node": ">=22"
   },
-  "keywords": [
-    "site generator",
-    "ssg",
-    "digital-garden",
-    "markdown",
-    "blog",
-    "quartz"
-  ],
   "bin": {
-    "quartz": "./quartz/bootstrap-cli.mjs"
+    "rssg": "./rssg/cli.js"
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",

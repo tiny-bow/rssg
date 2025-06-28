@@ -1,0 +1,12 @@
+footer {
+  text-align: center;
+  margin-bottom: 4rem;
+  font-size: 0.6em;
+  font-weight: ligher;
+  font-family: var(--codeFont);
+
+  & a {
+    text-decoration: none;
+    opacity: 0.6;
+  }
+}
