@@ -1,8 +1,6 @@
 import { PageLayout, SharedLayout } from "./cfg"
 import * as Component from "./components"
 
-const breadCrumbOpts = { rootName: "Anamnesis" };
-
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
@@ -17,7 +15,7 @@ export const sharedPageComponents: SharedLayout = {
 export const defaultContentPageLayout: PageLayout = {
   beforeBody: [
     Component.ConditionalRender({
-      component: Component.Breadcrumbs(breadCrumbOpts),
+      component: Component.Breadcrumbs(),
       condition: (page) => page.fileData.slug !== "index",
     }),
     Component.ArticleTitle(),
