@@ -403,8 +403,9 @@ async function cliWrapper() {
 
   if (is(mincfg.scheme, "object")) {
     if (!is(mincfg.scheme.foreground, "string") || !is(mincfg.scheme.background, "string") ||
-        !is(mincfg.scheme.overlay, "string") || !is(mincfg.scheme.dark_overlay, "string")) {
-      throw new Error("Invalid scheme configuration in .rssg/config.json: expected { foreground: string, background: string, overlay: string, dark_overlay: string }")
+        !is(mincfg.scheme.overlay, "string") || !is(mincfg.scheme.dark_overlay, "string") ||
+        !is(mincfg.scheme.code, "string")) {
+      throw new Error("Invalid scheme configuration in .rssg/config.json: expected { foreground: string, background: string, code: string, overlay: string, dark_overlay: string }")
     }
 
     scheme = {
@@ -417,6 +418,7 @@ async function cliWrapper() {
       tertiary: mincfg.scheme.foreground,
       highlight: mincfg.scheme.overlay,
       textHighlight: mincfg.scheme.dark_overlay,
+      codeColor: mincfg.scheme.code,
     }
   }
 

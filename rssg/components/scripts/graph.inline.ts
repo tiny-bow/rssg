@@ -208,6 +208,7 @@ async function renderGraph(graph: HTMLElement, fullSlug: FullSlug) {
     "--dark",
     "--darkgray",
     "--bodyFont",
+    "--codeColor"
   ] as const
   const computedStyleMap = cssVars.reduce(
     (acc, key) => {

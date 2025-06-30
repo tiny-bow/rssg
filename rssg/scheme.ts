@@ -3,6 +3,7 @@ import { ColorScheme } from "./util/theme"
 const scheme: ColorScheme = {
   light: "hsl(273, 16%, 34%)",
   lightgray: "rgba(0, 0, 0, 0.15)",
+  codeColor: "#fff",
   gray: "#fff",
   darkgray: "#fff",
   dark: "#fff",

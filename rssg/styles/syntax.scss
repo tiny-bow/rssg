@@ -8,10 +8,12 @@
 // }
 
 code[data-theme*=" "] {
+  --shiki-dark: var(--codeColor);
   color: var(--shiki-dark);
   background-color: var(--shiki-dark-bg);
 }
 
 code[data-theme*=" "] span {
+  --shiki-dark: var(--codeColor);
   color: var(--shiki-dark);
 }
