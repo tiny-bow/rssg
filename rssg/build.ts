@@ -393,6 +393,12 @@ async function cliWrapper() {
     }
   }
 
+  let copyright: string = "Copyright %c %year %host. All rights reserved."
+
+  if (is(mincfg.copyright, "string")) {
+    copyright = mincfg.copyright
+  }
+
   let scheme: ColorScheme = DefaultScheme
 
   if (is(mincfg.scheme, "object")) {
@@ -478,6 +484,7 @@ async function cliWrapper() {
   const cfg: RssgConfig = {
     configuration: {
       host,
+      copyright,
       document,
       pageTitle,
       pageTitleSuffix,

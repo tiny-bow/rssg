@@ -58,6 +58,7 @@ export interface DocumentConfiguration {
 export interface GlobalConfiguration {
   document: DocumentConfiguration
   host?: HostConfiguration
+  copyright: string
 
   pageTitle: string
   pageTitleSuffix: string

@@ -7,10 +7,20 @@ interface Options {
 export default ((_?: Options) => {
   const Footer: RssgComponent = ({ displayClass, ctx }: RssgComponentProps) => {
     const cfg = ctx.cfg.configuration
-    const year = new Date().getFullYear()
+
+    const notice = cfg.copyright.replace(/%(\w+)/g, (_: any, arg: string) => {
+        switch (arg) {
+            case "c": return "©"
+            case "year": return new Date().getFullYear()
+            case "host": return cfg.host?.title
+            default: throw `Unexpected copyright parameter "${arg}"`
+        }
+    })
+
+
     return (
       <footer class={`${displayClass ?? ""}`}>
-        <a href="/Copyright">Copyright © {year} {cfg.hostTitle}. All rights reserved.</a>
+        <a href="/Copyright">{notice}</a>
       </footer>
     )
   }
