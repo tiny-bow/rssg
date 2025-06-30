@@ -20,13 +20,13 @@ body {
 }
 
 .text-highlight {
-  background-color: var(--textHighlight);
+  background-color: var(--highlight);
   padding: 0 0.1rem;
   border-radius: 5px;
 }
 
 ::selection {
-  background: var(--textHighlight);
+  background: var(--highlight);
   color: var(--darkgray);
 }
 
